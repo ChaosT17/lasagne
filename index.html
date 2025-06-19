@@ -6,7 +6,7 @@
     color: #fff;
     font-weight: bold;
     padding: 0 32px 0 16px;
-    height: 44px; /* Just a bit bigger */
+    height: 44px;
     display: flex;
     align-items: center;
     clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
@@ -16,18 +16,19 @@
     justify-content: center;
     position: absolute;
     left: 0;
-    top: -2px; /* Slightly overlaps above and below */
+    top: -2px;
     z-index: 2;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    ">
+  ">
     Team17
   </div>
+
   <!-- Ticker tape -->
   <div id="ticker" style="
     background:#111;
     color:#fff;
     border:1px solid #222;
-    padding:0 0 0 110px; /* Match min-width of red box */
+    padding:0 0 0 110px;
     overflow:hidden;
     white-space:nowrap;
     width:100%;
@@ -38,12 +39,13 @@
     left: 0;
     top: 0;
     z-index: 1;
-    ">
-    <span id="ticker-content" style="display:inline-block;"></span>
+  ">
+    <span id="ticker-content" style="display:inline-block; will-change: transform;"></span>
   </div>
 </div>
+
 <script>
-  // Your RSS feed URL
+  // RSS feed setup
   var rss_url = "https://www.google.co.uk/alerts/feeds/09255055373189681314/10565810322274512878";
   var api_url = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rss_url);
 
@@ -51,19 +53,24 @@
     .then(response => response.json())
     .then(data => {
       var items = data.items || [];
-      var ticker = document.getElementById('ticker-content');
-      ticker.innerHTML = items.map(item =>
+      var tickerContent = document.getElementById('ticker-content');
+      tickerContent.innerHTML = items.map(item =>
         `<a href="${item.link}" target="_blank" style="margin-right:30px; color:#fff; text-decoration:none;">${item.title}</a>`
       ).join('');
-      // Animate ticker
-      var tickerDiv = document.getElementById('ticker');
-      var scrollAmount = 0;
-      setInterval(function() {
-        scrollAmount += 1;
-        ticker.style.transform = `translateX(${-scrollAmount}px)`;
-        if (ticker.offsetWidth - Math.abs(scrollAmount) < tickerDiv.offsetWidth) {
-          scrollAmount = 0;
+
+      // Animate the ticker
+      var ticker = document.getElementById('ticker');
+      var pos = ticker.offsetWidth;
+
+      function animate() {
+        pos--;
+        tickerContent.style.transform = `translateX(${pos}px)`;
+        if (pos < -tickerContent.offsetWidth) {
+          pos = ticker.offsetWidth;
         }
-      }, 30);
+        requestAnimationFrame(animate);
+      }
+
+      animate();
     });
 </script>
